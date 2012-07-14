@@ -294,6 +294,15 @@ option_t general_options[] = {
     { "unset", o_special, (void *)user_unsetenv,
       "Unset user environment variable",
       OPT_A2PRINTER | OPT_NOPRINT, (void *)user_unsetprint },
+    { "pap-secrets", o_string, pap_secrets_file,
+      "Specify non-default pap-secrets file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
+    { "chap-secrets", o_string, chap_secrets_file,
+      "Specify non-default chap-secrets file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
+    { "srp-secrets", o_string, srp_secrets_file,
+      "Specify non-default srp-secrets file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
 
 #ifdef HAVE_MULTILINK
     { "multilink", o_bool, &multilink,

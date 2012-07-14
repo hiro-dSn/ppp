@@ -254,6 +254,10 @@ extern bool	multilink_master;
 extern bool	bundle_eof;
 extern bool	bundle_terminating;
 
+extern char	pap_secrets_file[MAXPATHLEN];	/* filename for pap-secrets */
+extern char	chap_secrets_file[MAXPATHLEN];	/* filename for chap-secrets */
+extern char	srp_secrets_file[MAXPATHLEN];	/* filename for srp-secrets */
+
 extern struct notifier *pidchange;   /* for notifications of pid changing */
 extern struct notifier *phasechange; /* for notifications of phase changes */
 extern struct notifier *exitnotify;  /* for notification that we're exiting */

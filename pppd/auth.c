@@ -1368,7 +1368,6 @@ check_passwd(unit, auser, userlen, apasswd, passwdlen, msg)
     char **msg;
 {
     int ret;
-    char *filename;
     FILE *f;
     struct wordlist *addrs = NULL, *opts = NULL;
     char passwd[256], user[256];
@@ -1407,16 +1406,16 @@ check_passwd(unit, auser, userlen, apasswd, passwdlen, msg)
      * Open the file of pap secrets and scan for a suitable secret
      * for authenticating this user.
      */
-    filename = _PATH_UPAPFILE;
     addrs = opts = NULL;
     ret = UPAP_AUTHNAK;
-    f = fopen(filename, "r");
+    f = fopen(pap_secrets_file, "r");
     if (f == NULL) {
-	error("Can't open PAP password file %s: %m", filename);
+	error("Can't open PAP password file %s: %m", pap_secrets_file);
 
     } else {
-	check_access(f, filename);
-	if (scan_authfile(f, user, our_name, secret, &addrs, &opts, filename, 0) < 0) {
+	check_access(f, pap_secrets_file);
+	if (scan_authfile(f, user, our_name, secret, &addrs, &opts,
+	                  pap_secrets_file, 0) < 0) {
 	    warn("no PAP secret found for %s", user);
 	} else {
 	    /*
@@ -1490,7 +1489,6 @@ static int
 null_login(unit)
     int unit;
 {
-    char *filename;
     FILE *f;
     int i, ret;
     struct wordlist *addrs, *opts;
@@ -1507,14 +1505,13 @@ null_login(unit)
      * Open the file of pap secrets and scan for a suitable secret.
      */
     if (ret <= 0) {
-	filename = _PATH_UPAPFILE;
 	addrs = NULL;
-	f = fopen(filename, "r");
+	f = fopen(pap_secrets_file, "r");
 	if (f == NULL)
 	    return 0;
-	check_access(f, filename);
+	check_access(f, pap_secrets_file);
 
-	i = scan_authfile(f, "", our_name, secret, &addrs, &opts, filename, 0);
+	i = scan_authfile(f, "", our_name, secret, &addrs, &opts, pap_secrets_file, 0);
 	ret = i >= 0 && secret[0] == 0;
 	BZERO(secret, sizeof(secret));
 	fclose(f);
@@ -1541,7 +1538,6 @@ static int
 get_pap_passwd(passwd)
     char *passwd;
 {
-    char *filename;
     FILE *f;
     int ret;
     char secret[MAXWORDLEN];
@@ -1555,14 +1551,13 @@ get_pap_passwd(passwd)
 	    return ret;
     }
 
-    filename = _PATH_UPAPFILE;
-    f = fopen(filename, "r");
+    f = fopen(pap_secrets_file, "r");
     if (f == NULL)
 	return 0;
-    check_access(f, filename);
+    check_access(f, pap_secrets_file);
     ret = scan_authfile(f, user,
 			(remote_name[0]? remote_name: NULL),
-			secret, NULL, NULL, filename, 0);
+			secret, NULL, NULL, pap_secrets_file, 0);
     fclose(f);
     if (ret < 0)
 	return 0;
@@ -1583,7 +1578,6 @@ have_pap_secret(lacks_ipp)
 {
     FILE *f;
     int ret;
-    char *filename;
     struct wordlist *addrs;
 
     /* let the plugin decide, if there is one */
@@ -1593,13 +1587,12 @@ have_pap_secret(lacks_ipp)
 	    return ret;
     }
 
-    filename = _PATH_UPAPFILE;
-    f = fopen(filename, "r");
+    f = fopen(pap_secrets_file, "r");
     if (f == NULL)
 	return 0;
 
     ret = scan_authfile(f, (explicit_remote? remote_name: NULL), our_name,
-			NULL, &addrs, NULL, filename, 0);
+			NULL, &addrs, NULL, pap_secrets_file, 0);
     fclose(f);
     if (ret >= 0 && !some_ip_ok(addrs)) {
 	if (lacks_ipp != 0)
@@ -1628,7 +1621,6 @@ have_chap_secret(client, server, need_ip, lacks_ipp)
 {
     FILE *f;
     int ret;
-    char *filename;
     struct wordlist *addrs;
 
     if (chap_check_hook) {
@@ -1638,8 +1630,7 @@ have_chap_secret(client, server, need_ip, lacks_ipp)
 	}
     }
 
-    filename = _PATH_CHAPFILE;
-    f = fopen(filename, "r");
+    f = fopen(chap_secrets_file, "r");
     if (f == NULL)
 	return 0;
 
@@ -1648,7 +1639,7 @@ have_chap_secret(client, server, need_ip, lacks_ipp)
     else if (server != NULL && server[0] == 0)
 	server = NULL;
 
-    ret = scan_authfile(f, client, server, NULL, &addrs, NULL, filename, 0);
+    ret = scan_authfile(f, client, server, NULL, &addrs, NULL, chap_secrets_file, 0);
     fclose(f);
     if (ret >= 0 && need_ip && !some_ip_ok(addrs)) {
 	if (lacks_ipp != 0)
@@ -1677,11 +1668,9 @@ have_srp_secret(client, server, need_ip, lacks_ipp)
 {
     FILE *f;
     int ret;
-    char *filename;
     struct wordlist *addrs;
 
-    filename = _PATH_SRPFILE;
-    f = fopen(filename, "r");
+    f = fopen(srp_secrets_file, "r");
     if (f == NULL)
 	return 0;
 
@@ -1690,7 +1679,7 @@ have_srp_secret(client, server, need_ip, lacks_ipp)
     else if (server != NULL && server[0] == 0)
 	server = NULL;
 
-    ret = scan_authfile(f, client, server, NULL, &addrs, NULL, filename, 0);
+    ret = scan_authfile(f, client, server, NULL, &addrs, NULL, srp_secrets_file, 0);
     fclose(f);
     if (ret >= 0 && need_ip && !some_ip_ok(addrs)) {
 	if (lacks_ipp != 0)
@@ -1720,7 +1709,6 @@ get_secret(unit, client, server, secret, secret_len, am_server)
 {
     FILE *f;
     int ret, len;
-    char *filename;
     struct wordlist *addrs, *opts;
     char secbuf[MAXWORDLEN];
 
@@ -1733,18 +1721,18 @@ get_secret(unit, client, server, secret, secret_len, am_server)
 	    return 0;
 	}
     } else {
-	filename = _PATH_CHAPFILE;
 	addrs = NULL;
 	secbuf[0] = 0;
 
-	f = fopen(filename, "r");
+	f = fopen(chap_secrets_file, "r");
 	if (f == NULL) {
-	    error("Can't open chap secret file %s: %m", filename);
+	    error("Can't open chap secret file %s: %m", chap_secrets_file);
 	    return 0;
 	}
-	check_access(f, filename);
+	check_access(f, chap_secrets_file);
 
-	ret = scan_authfile(f, client, server, secbuf, &addrs, &opts, filename, 0);
+	ret = scan_authfile(f, client, server, secbuf, &addrs, &opts,
+	                    chap_secrets_file, 0);
 	fclose(f);
 	if (ret < 0)
 	    return 0;
@@ -1785,25 +1773,23 @@ get_srp_secret(unit, client, server, secret, am_server)
 {
     FILE *fp;
     int ret;
-    char *filename;
     struct wordlist *addrs, *opts;
 
     if (!am_server && passwd[0] != '\0') {
 	strlcpy(secret, passwd, MAXWORDLEN);
     } else {
-	filename = _PATH_SRPFILE;
 	addrs = NULL;
 
-	fp = fopen(filename, "r");
+	fp = fopen(srp_secrets_file, "r");
 	if (fp == NULL) {
-	    error("Can't open srp secret file %s: %m", filename);
+	    error("Can't open srp secret file %s: %m", srp_secrets_file);
 	    return 0;
 	}
-	check_access(fp, filename);
+	check_access(fp, srp_secrets_file);
 
 	secret[0] = '\0';
 	ret = scan_authfile(fp, client, server, secret, &addrs, &opts,
-	    filename, am_server);
+	    srp_secrets_file, am_server);
 	fclose(fp);
 	if (ret < 0)
 	    return 0;

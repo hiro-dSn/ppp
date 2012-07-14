@@ -134,6 +134,9 @@ char hostname[MAXNAMELEN];	/* Our hostname */
 static char pidfilename[MAXPATHLEN];	/* name of pid file */
 static char linkpidfile[MAXPATHLEN];	/* name of linkname pid file */
 char ppp_devnam[MAXPATHLEN];	/* name of PPP tty (maybe ttypx) */
+char pap_secrets_file[MAXPATHLEN];   /* filename for pap-secrets */
+char chap_secrets_file[MAXPATHLEN];  /* filename for chap-secrets */
+char srp_secrets_file[MAXPATHLEN];   /* filename for srp-secrets */
 uid_t uid;			/* Our real user-id */
 struct notifier *pidchange = NULL;
 struct notifier *phasechange = NULL;
@@ -356,6 +359,13 @@ main(argc, argv)
      * Initialize the default channel.
      */
     tty_init();
+
+	/*
+	 * Initialize the default *-secrets filename
+	 */
+	strlcpy(pap_secrets_file, _PATH_UPAPFILE, sizeof(pap_secrets_file));
+	strlcpy(chap_secrets_file, _PATH_CHAPFILE, sizeof(chap_secrets_file));
+	strlcpy(srp_secrets_file, _PATH_SRPFILE, sizeof(srp_secrets_file));
 
     progname = *argv;
 
