@@ -353,6 +353,15 @@ option_t general_options[] = {
       "Update server CA CRLs and exit", 1 },
     { "only-update-crl-client", o_bool, &only_update_crl_client,
       "Update client CA CRLs and exit", 1 },
+    { "eaptls-client", o_string, eaptls_client_file,
+      "Specify non-default eaptls-client file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
+    { "eaptls-server", o_string, eaptls_server_file,
+      "Specify non-default eaptls-server file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
+    { "opensslconf", o_string, openssl_cnf_file,
+      "Specify non-default openssl.cnf file",
+      OPT_PRIV | OPT_INITONLY | OPT_STATIC, NULL, MAXPATHLEN },
 #endif /* USE_EAPTLS */
 
     { NULL }

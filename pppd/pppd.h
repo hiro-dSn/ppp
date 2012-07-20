@@ -258,6 +258,12 @@ extern char	pap_secrets_file[MAXPATHLEN];	/* filename for pap-secrets */
 extern char	chap_secrets_file[MAXPATHLEN];	/* filename for chap-secrets */
 extern char	srp_secrets_file[MAXPATHLEN];	/* filename for srp-secrets */
 
+#ifdef USE_EAPTLS
+extern char eaptls_client_file[MAXPATHLEN];	/* filename for eaptls-client */
+extern char eaptls_server_file[MAXPATHLEN]; /* filename for eaptls-server */
+extern char openssl_cnf_file[MAXPATHLEN];	/* filename for openssl.cnf */
+#endif /* USE_EAPTLS */
+
 extern struct notifier *pidchange;   /* for notifications of pid changing */
 extern struct notifier *phasechange; /* for notifications of phase changes */
 extern struct notifier *exitnotify;  /* for notification that we're exiting */

@@ -137,6 +137,11 @@ char ppp_devnam[MAXPATHLEN];	/* name of PPP tty (maybe ttypx) */
 char pap_secrets_file[MAXPATHLEN];   /* filename for pap-secrets */
 char chap_secrets_file[MAXPATHLEN];  /* filename for chap-secrets */
 char srp_secrets_file[MAXPATHLEN];   /* filename for srp-secrets */
+#ifdef USE_EAPTLS
+char eaptls_client_file[MAXPATHLEN]; /* filename for eaptls-client */
+char eaptls_server_file[MAXPATHLEN]; /* filename for eaptls-server */
+char openssl_cnf_file[MAXPATHLEN];   /* filename for openssl.cnf */
+#endif /* USE_EAPTLS */
 uid_t uid;			/* Our real user-id */
 struct notifier *pidchange = NULL;
 struct notifier *phasechange = NULL;
@@ -366,6 +371,14 @@ main(argc, argv)
 	strlcpy(pap_secrets_file, _PATH_UPAPFILE, sizeof(pap_secrets_file));
 	strlcpy(chap_secrets_file, _PATH_CHAPFILE, sizeof(chap_secrets_file));
 	strlcpy(srp_secrets_file, _PATH_SRPFILE, sizeof(srp_secrets_file));
+#ifdef USE_EAPTLS
+	strlcpy(eaptls_client_file, _PATH_EAPTLSCLIFILE,
+	        sizeof(eaptls_client_file));
+	strlcpy(eaptls_server_file, _PATH_EAPTLSSERVFILE,
+	        sizeof(eaptls_server_file));
+	strlcpy(openssl_cnf_file, _PATH_OPENSSLCONFFILE,
+	        sizeof(openssl_cnf_file));
+#endif /* USE_EAPTLS */
 
     progname = *argv;
 

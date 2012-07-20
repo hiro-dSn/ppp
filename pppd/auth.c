@@ -2429,15 +2429,13 @@ have_eaptls_secret_server(client, server, need_ip, lacks_ipp)
 {
     FILE *f;
     int ret;
-    char *filename;
     struct wordlist *addrs;
     char servcertfile[MAXWORDLEN];
     char clicertfile[MAXWORDLEN];
     char cacertfile[MAXWORDLEN];
     char pkfile[MAXWORDLEN];
 
-    filename = _PATH_EAPTLSSERVFILE;
-    f = fopen(filename, "r");
+    f = fopen(eaptls_server_file, "r");
     if (f == NULL)
 		return 0;
 
@@ -2448,7 +2446,7 @@ have_eaptls_secret_server(client, server, need_ip, lacks_ipp)
 
     ret =
 	scan_authfile_eaptls(f, client, server, clicertfile, servcertfile,
-			     cacertfile, pkfile, &addrs, NULL, filename,
+			     cacertfile, pkfile, &addrs, NULL, eaptls_server_file,
 			     0);
 
     fclose(f);
@@ -2478,7 +2476,6 @@ have_eaptls_secret_client(client, server)
 {
     FILE *f;
     int ret;
-    char *filename;
     struct wordlist *addrs = NULL;
     char servcertfile[MAXWORDLEN];
     char clicertfile[MAXWORDLEN];
@@ -2493,14 +2490,13 @@ have_eaptls_secret_client(client, server)
 	if (cacert_file && cert_file && privkey_file)
 		return 1;
 
-    filename = _PATH_EAPTLSCLIFILE;
-    f = fopen(filename, "r");
+    f = fopen(eaptls_client_file, "r");
     if (f == NULL)
 		return 0;
 
     ret =
 	scan_authfile_eaptls(f, client, server, clicertfile, servcertfile,
-			     cacertfile, pkfile, &addrs, NULL, filename,
+			     cacertfile, pkfile, &addrs, NULL, eaptls_client_file,
 			     0);
     fclose(f);
 
@@ -2708,7 +2704,7 @@ get_eaptls_secret(unit, client, server, clicertfile, servcertfile,
 	}
 	else
 	{
-		filename = (am_server ? _PATH_EAPTLSSERVFILE : _PATH_EAPTLSCLIFILE);
+		filename = (am_server ? eaptls_server_file : eaptls_client_file);
 		addrs = NULL;
 
 		fp = fopen(filename, "r");
